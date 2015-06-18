@@ -9,13 +9,20 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.*;
 
+@Service
 public class NaTematCrawlerService implements ICrawlerService {
 
     private final static int TIMEOUT = 10 * 1000;
+
+    @Autowired
+    private Environment env;
 
     @Override
     public Set<Element> findUniqueLinks(Collection<Element> links) {
@@ -37,7 +44,7 @@ public class NaTematCrawlerService implements ICrawlerService {
 
         List<Comment> comments = new ArrayList<Comment>();
 
-        JSONObject json1 = JsonReader.readJsonFromUrl("http://graph.facebook.com/comments?id=" + url);
+        JSONObject json1 = JsonReader.readJsonFromUrl("https://graph.facebook.com/comments?id=" + url);
         JSONArray data = json1.getJSONArray("data");
 
         for (int i = 0; i < data.length(); ++i) {
@@ -59,7 +66,7 @@ public class NaTematCrawlerService implements ICrawlerService {
 
         Set<Comment> subComments = new LinkedHashSet<Comment>();
 
-        JSONObject json = JsonReader.readJsonFromUrl("http://graph.facebook.com/" + commentId + "/comments");
+        JSONObject json = JsonReader.readJsonFromUrl("https://graph.facebook.com/" + commentId + "/comments" + "?access_token=" + env.getRequiredProperty("facebook.token"));
         JSONArray data = json.getJSONArray("data");
 
         for (int i = 0; i < data.length(); ++i) {
@@ -78,14 +85,14 @@ public class NaTematCrawlerService implements ICrawlerService {
 
     @Override
     public int getNumberOfCommentsForUrl(String url) throws IOException {
-        JSONObject json1 = JsonReader.readJsonFromUrl("http://graph.facebook.com/comments?id=" + url);
+        JSONObject json1 = JsonReader.readJsonFromUrl("https://graph.facebook.com/comments?id=" + url);
         JSONArray data = json1.getJSONArray("data");
         return data.length();
     }
 
     @Override
     public int getNumberOfFacebookSharesForArticle(String articleUrl) throws IOException {
-        JSONObject json = JsonReader.readJsonFromUrl("http://graph.facebook.com/" + articleUrl);
+        JSONObject json = JsonReader.readJsonFromUrl("https://graph.facebook.com/" + articleUrl + "?access_token=" + env.getRequiredProperty("facebook.token"));
         if (json.has("shares"))
             return json.getInt("shares");
         return 0;
