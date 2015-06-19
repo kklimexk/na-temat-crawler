@@ -93,8 +93,10 @@ public class NaTematCrawlerService implements ICrawlerService {
     @Override
     public int getNumberOfFacebookSharesForArticle(String articleUrl) throws IOException {
         JSONObject json = JsonReader.readJsonFromUrl("https://graph.facebook.com/" + articleUrl + "?access_token=" + env.getRequiredProperty("facebook.token"));
-        if (json.has("shares"))
-            return json.getInt("shares");
+        JSONObject shareJson = json.getJSONObject("share");
+
+        if (shareJson.has("share_count"))
+            return shareJson.getInt("share_count");
         return 0;
     }
 
