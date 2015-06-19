@@ -42,6 +42,12 @@ public class ArticleService {
     }
 
     @Transactional
+    public void saveArticleForSection(Section section, Article article) {
+        article.setSection(section);
+        articleRepository.save(article);
+    }
+
+    @Transactional
     public void saveArticlesForSection(Section section, Iterable<Article> articles) {
         for (Article article : articles) {
             article.setSection(section);

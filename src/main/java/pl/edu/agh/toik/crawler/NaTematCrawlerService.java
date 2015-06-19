@@ -44,7 +44,7 @@ public class NaTematCrawlerService implements ICrawlerService {
 
         List<Comment> comments = new ArrayList<Comment>();
 
-        JSONObject json1 = JsonReader.readJsonFromUrl("https://graph.facebook.com/comments?id=" + url);
+        JSONObject json1 = JsonReader.readJsonFromUrl("https://graph.facebook.com/comments?id=" + url + "&access_token=" + env.getRequiredProperty("facebook.token"));
         JSONArray data = json1.getJSONArray("data");
 
         for (int i = 0; i < data.length(); ++i) {
@@ -85,7 +85,7 @@ public class NaTematCrawlerService implements ICrawlerService {
 
     @Override
     public int getNumberOfCommentsForUrl(String url) throws IOException {
-        JSONObject json1 = JsonReader.readJsonFromUrl("https://graph.facebook.com/comments?id=" + url);
+        JSONObject json1 = JsonReader.readJsonFromUrl("https://graph.facebook.com/comments?id=" + url + "&access_token=" + env.getRequiredProperty("facebook.token"));
         JSONArray data = json1.getJSONArray("data");
         return data.length();
     }
