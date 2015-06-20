@@ -34,4 +34,21 @@ public class Section {
     public void setArticles(Set<Article> articles) {
         this.articles = articles;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Section section = (Section) o;
+
+        return !(sectionName != null ? !sectionName.equals(section.sectionName) : section.sectionName != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return sectionName != null ? sectionName.hashCode() : 0;
+    }
+
 }

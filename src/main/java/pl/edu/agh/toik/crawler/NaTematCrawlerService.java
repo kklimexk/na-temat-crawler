@@ -210,10 +210,10 @@ public class NaTematCrawlerService implements ICrawlerService {
     }
 
     @Override
-    public List<LinkMap> getLinksFromMonth(String url) throws IOException{
+    public Collection<LinkMap> getLinksFromMonth(String url) throws IOException{
         Document doc = Jsoup.connect(url).timeout(TIMEOUT).get();
 
-        List<LinkMap> allLinks = new ArrayList<LinkMap>();
+        Set<LinkMap> allLinks = new LinkedHashSet<LinkMap>();
 
         Set<Element> links = this.findUniqueLinks(doc.select("div#main a.pg_page"));
         if(!links.isEmpty()) {
@@ -238,7 +238,7 @@ public class NaTematCrawlerService implements ICrawlerService {
     }
 
     @Override
-    public String getLinkFromName(String name, List<LinkMap> list){
+    public String getLinkFromName(String name, Collection<LinkMap> list){
         for (LinkMap element : list){
             if (element.getName().equals(name))
                 return element.getLink();
@@ -247,7 +247,7 @@ public class NaTematCrawlerService implements ICrawlerService {
     }
 
     @Override
-    public List<String> getNames(List<LinkMap> list){
+    public List<String> getNames(Collection<LinkMap> list){
         List<String> stringList = new ArrayList<String>();
 
         for (LinkMap element : list){

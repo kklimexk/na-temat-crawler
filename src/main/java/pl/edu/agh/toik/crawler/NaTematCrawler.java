@@ -3,15 +3,14 @@ package main.java.pl.edu.agh.toik.crawler;
 import main.java.pl.edu.agh.toik.database.NaTematCrawlerDB;
 import main.java.pl.edu.agh.toik.database.model.Article;
 import main.java.pl.edu.agh.toik.database.model.Comment;
+import main.java.pl.edu.agh.toik.database.model.Section;
 import main.java.pl.edu.agh.toik.mail_notification.NaTematCrawlerMailNotification;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Component
 public class NaTematCrawler implements ICrawler {
@@ -56,34 +55,59 @@ public class NaTematCrawler implements ICrawler {
 
         try {
 
-            Set<String> allArticlesLinks = crawlerService.getAllArticlesLinks();
+            List<String> sectionNames = crawlerService.getAllSectionsList();
 
-            for (String articleLink : allArticlesLinks) {
-                Document tmpDoc = Jsoup.connect(articleLink).timeout(TIMEOUT).get();
-                System.out.println("URL: " + articleLink);
-                System.out.println("Text length: " + tmpDoc.text().length());
-                System.out.println("Html length: " + tmpDoc.html().length());
-                System.out.println("Number of comments: " + crawlerService.getNumberOfCommentsForUrl(articleLink));
-                System.out.println("Number of links: " + crawlerService.findUniqueLinks(tmpDoc.select("a[href^=" + url + "], a[href^=/]")).size());
+            Set<Section> sections = new LinkedHashSet<Section>();
 
-                Article article = crawlerService.getArticleFromUrl(articleLink);
-                List<Comment> commentsList = crawlerService.getCommentsForUrl(articleLink);
+            for (String sectionName : sectionNames) {
+                sections.add(new Section(sectionName));
+            }
 
-                if (article != null) {
-                    naTematCrawlerDB.getArticleService().saveArticle(article);
-                    System.out.println("Number of facebook shares: " + article.getFacebookShares());
-                }
+            naTematCrawlerDB.getSectionService().saveSections(sections);
 
-                naTematCrawlerDB.getCommentService().saveComments(commentsList);
+            for (Section section : sections) {
 
-                if (article != null && !commentsList.isEmpty())
-                    naTematCrawlerDB.getArticleService().saveCommentsForArticle(article, commentsList);
+                String sectionName = section.getSectionName();
 
-                for (Comment comment : commentsList) {
-                    Set<Comment> subCommentsList = crawlerService.getSubCommentsForCommentId(comment.getId());
-                    System.out.println("For commentId: " + comment.getId());
-                    System.out.println("Number of subComments: " + subCommentsList.size());
-                    naTematCrawlerDB.getCommentService().saveSubCommentsForComment(comment, subCommentsList);
+                System.out.println("Section: " + sectionName);
+                List<LinkMap> linksInSection = crawlerService.getLinksFromSection(sectionName);
+
+                for (LinkMap linkInSection : linksInSection) {
+
+                    System.out.println(linkInSection.getName());
+                    Collection<LinkMap> allArticlesLinks = crawlerService.getLinksFromMonth(linkInSection.getLink());
+
+                    for (LinkMap link : allArticlesLinks) {
+
+                        String articleLink = link.getLink();
+
+                        Document tmpDoc = Jsoup.connect(articleLink).timeout(TIMEOUT).get();
+                        System.out.println("URL: " + articleLink);
+                        System.out.println("Text length: " + tmpDoc.text().length());
+                        System.out.println("Html length: " + tmpDoc.html().length());
+                        System.out.println("Number of comments: " + crawlerService.getNumberOfCommentsForUrl(articleLink));
+                        System.out.println("Number of links: " + crawlerService.findUniqueLinks(tmpDoc.select("a[href^=" + url + "], a[href^=/]")).size());
+
+                        Article article = crawlerService.getArticleFromUrl(articleLink);
+                        List<Comment> commentsList = crawlerService.getCommentsForUrl(articleLink);
+
+                        if (article != null) {
+                            naTematCrawlerDB.getArticleService().saveArticleForSection(section, article);
+                            System.out.println("Number of facebook shares: " + article.getFacebookShares());
+                        }
+
+                        naTematCrawlerDB.getCommentService().saveComments(commentsList);
+
+                        if (article != null && !commentsList.isEmpty())
+                            naTematCrawlerDB.getArticleService().saveCommentsForArticle(article, commentsList);
+
+                        for (Comment comment : commentsList) {
+                            Set<Comment> subCommentsList = crawlerService.getSubCommentsForCommentId(comment.getId());
+                            System.out.println("For commentId: " + comment.getId());
+                            System.out.println("Number of subComments: " + subCommentsList.size());
+                            naTematCrawlerDB.getCommentService().saveSubCommentsForComment(comment, subCommentsList);
+                        }
+                    }
                 }
             }
             //naTematCrawlerMailNotification.getMailNotificationService().sendMailNotification("YOUR_EMAIL", "NaTematCrawler finished", "Crawler stopped at: " + new Date());

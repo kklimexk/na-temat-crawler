@@ -19,7 +19,7 @@ public interface ICrawlerService {
     int getNumberOfFacebookSharesForArticle(String articleUrl) throws IOException;
     List<String> getAllSectionsList() throws IOException;
     List<LinkMap> getLinksFromSection(String section) throws IOException;
-    List<LinkMap> getLinksFromMonth(String url) throws IOException;
-    String getLinkFromName(String name, List<LinkMap> list);
-    List<String> getNames(List<LinkMap> list);
+    Collection<LinkMap> getLinksFromMonth(String url) throws IOException;
+    String getLinkFromName(String name, Collection<LinkMap> list);
+    List<String> getNames(Collection<LinkMap> list);
 }

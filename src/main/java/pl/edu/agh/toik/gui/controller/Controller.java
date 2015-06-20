@@ -44,7 +44,7 @@ public class Controller implements Initializable {
     private String section;
     private Article article;
     private List<LinkMap> monthsL;
-    private List<LinkMap> articlesL;
+    private Collection<LinkMap> articlesL;
 
     private ToggleGroup group;
     private RadioButton chk;
