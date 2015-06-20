@@ -4,7 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
+import java.util.Date;
 
 @Service
 public class MailNotificationService {
@@ -23,6 +26,24 @@ public class MailNotificationService {
         message.setText(body);
 
         mailSender.send(message);
+    }
+
+    @Async
+    public void sendCrawlerStatisticMailAsync(long startTime, Integer allArticlesCrawled, Integer allCommentsCrawled, Integer allSubCommentsCrawled) {
+        long time = System.currentTimeMillis() - startTime;
+
+        Integer frequency = Integer.valueOf(env.getRequiredProperty("mail.time"));
+
+        if (time % frequency >= 0 && time % frequency <= 400) {
+            sendMailNotification(
+                    "NaTematCrawler statistic",
+                    "Time: " + new Date() + " (" + time + "[ms])" + "\n" +
+                    "All articles crawled: " + allArticlesCrawled + "\n" +
+                    "All comments crawled: " + allCommentsCrawled + "\n" +
+                    "All subcomments crawled: " + allSubCommentsCrawled + "\n"
+            );
+        }
+
     }
 
 }

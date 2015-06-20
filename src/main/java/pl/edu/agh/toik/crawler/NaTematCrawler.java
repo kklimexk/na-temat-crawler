@@ -5,6 +5,7 @@ import main.java.pl.edu.agh.toik.database.model.Article;
 import main.java.pl.edu.agh.toik.database.model.Comment;
 import main.java.pl.edu.agh.toik.database.model.Section;
 import main.java.pl.edu.agh.toik.mail_notification.NaTematCrawlerMailNotification;
+import main.java.pl.edu.agh.toik.mail_notification.service.MailNotificationService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,9 +52,17 @@ public class NaTematCrawler implements ICrawler {
     @Override
     public void crawl(String url) {
 
-        //naTematCrawlerMailNotification.getMailNotificationService().sendMailNotification("YOUR_EMAIL", "NaTematCrawler started", "Crawler started at: " + new Date());
+        MailNotificationService mailNotificationService = naTematCrawlerMailNotification.getMailNotificationService();
+
+        mailNotificationService.sendMailNotification("NaTematCrawler started", "Crawler started at: " + new Date());
 
         try {
+
+            long startTime = System.currentTimeMillis();
+
+            Integer allArticlesCrawled = 0;
+            Integer allCommentsCrawled = 0;
+            Integer allSubCommentsCrawled = 0;
 
             List<String> sectionNames = crawlerService.getAllSectionsList();
 
@@ -89,20 +98,31 @@ public class NaTematCrawler implements ICrawler {
                         System.out.println("Number of links: " + crawlerService.findUniqueLinks(tmpDoc.select("a[href^=" + url + "], a[href^=/]")).size());
 
                         Article article = crawlerService.getArticleFromUrl(articleLink);
+                        allArticlesCrawled += 1;
+
+                        mailNotificationService.sendCrawlerStatisticMailAsync(startTime, allArticlesCrawled, allCommentsCrawled, allSubCommentsCrawled);
+
                         List<Comment> commentsList = crawlerService.getCommentsForUrl(articleLink);
+                        allCommentsCrawled += commentsList.size();
+
+                        mailNotificationService.sendCrawlerStatisticMailAsync(startTime, allArticlesCrawled, allCommentsCrawled, allSubCommentsCrawled);
 
                         if (article != null) {
                             naTematCrawlerDB.getArticleService().saveArticleForSection(section, article);
+                            mailNotificationService.sendCrawlerStatisticMailAsync(startTime, allArticlesCrawled, allCommentsCrawled, allSubCommentsCrawled);
                             System.out.println("Number of facebook shares: " + article.getFacebookShares());
                         }
 
                         naTematCrawlerDB.getCommentService().saveComments(commentsList);
+                        mailNotificationService.sendCrawlerStatisticMailAsync(startTime, allArticlesCrawled, allCommentsCrawled, allSubCommentsCrawled);
 
                         if (article != null && !commentsList.isEmpty())
                             naTematCrawlerDB.getArticleService().saveCommentsForArticle(article, commentsList);
 
                         for (Comment comment : commentsList) {
                             Set<Comment> subCommentsList = crawlerService.getSubCommentsForCommentId(comment.getId());
+                            allSubCommentsCrawled += subCommentsList.size();
+                            mailNotificationService.sendCrawlerStatisticMailAsync(startTime, allArticlesCrawled, allCommentsCrawled, allSubCommentsCrawled);
                             System.out.println("For commentId: " + comment.getId());
                             System.out.println("Number of subComments: " + subCommentsList.size());
                             naTematCrawlerDB.getCommentService().saveSubCommentsForComment(comment, subCommentsList);
@@ -110,9 +130,18 @@ public class NaTematCrawler implements ICrawler {
                     }
                 }
             }
-            //naTematCrawlerMailNotification.getMailNotificationService().sendMailNotification("YOUR_EMAIL", "NaTematCrawler finished", "Crawler stopped at: " + new Date());
+
+            long endTime = System.currentTimeMillis() - startTime;
+
+            mailNotificationService.sendMailNotification("NaTematCrawler finished", "Crawler stopped at: " + new Date() +
+                    "Crawling summary: " +
+                    "End time: " + new Date() + " (" + endTime + "[ms])" + "\n" +
+                    "All articles crawled: " + allArticlesCrawled + "\n" +
+                    "All comments crawled: " + allCommentsCrawled + "\n" +
+                    "All subcomments crawled: " + allSubCommentsCrawled + "\n");
+
         } catch (Exception e) {
-            //naTematCrawlerMailNotification.getMailNotificationService().sendMailNotification("YOUR_EMAIL", "NaTematCrawler error", "Crawler error: " + e.getMessage());
+            mailNotificationService.sendMailNotification("NaTematCrawler error", "Crawler error: " + e.getMessage());
             e.printStackTrace();
         }
     }
