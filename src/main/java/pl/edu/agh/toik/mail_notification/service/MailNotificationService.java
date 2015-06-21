@@ -28,6 +28,7 @@ public class MailNotificationService {
         mailSender.send(message);
     }
 
+    @Deprecated
     @Async
     public void sendCrawlerStatisticMailAsync(long startTime, Integer allArticlesCrawled, Integer allCommentsCrawled, Integer allSubCommentsCrawled) {
         long time = System.currentTimeMillis() - startTime;

@@ -28,6 +28,9 @@ public class NaTematCrawler implements ICrawler {
     private NaTematCrawlerMailNotification naTematCrawlerMailNotification;
 
     @Autowired
+    private NaTematCrawlerStatistic naTematCrawlerStatisticThread;
+
+    @Autowired
     public NaTematCrawler(ICrawlerService crawlerService, ICrawlerSettings crawlerSettings) {
         this.crawlerService = crawlerService;
         this.crawlerSettings = crawlerSettings;
@@ -59,6 +62,8 @@ public class NaTematCrawler implements ICrawler {
         try {
 
             long startTime = System.currentTimeMillis();
+            Thread statisticThread = new Thread(naTematCrawlerStatisticThread);
+            statisticThread.start();
 
             Integer allArticlesCrawled = 0;
             Integer allCommentsCrawled = 0;
@@ -99,22 +104,18 @@ public class NaTematCrawler implements ICrawler {
 
                         Article article = crawlerService.getArticleFromUrl(articleLink);
                         allArticlesCrawled += 1;
-
-                        mailNotificationService.sendCrawlerStatisticMailAsync(startTime, allArticlesCrawled, allCommentsCrawled, allSubCommentsCrawled);
+                        naTematCrawlerStatisticThread.setAllArticlesCrawled(allArticlesCrawled);
 
                         List<Comment> commentsList = crawlerService.getCommentsForUrl(articleLink);
                         allCommentsCrawled += commentsList.size();
-
-                        mailNotificationService.sendCrawlerStatisticMailAsync(startTime, allArticlesCrawled, allCommentsCrawled, allSubCommentsCrawled);
+                        naTematCrawlerStatisticThread.setAllCommentsCrawled(allCommentsCrawled);
 
                         if (article != null) {
                             naTematCrawlerDB.getArticleService().saveArticleForSection(section, article);
-                            mailNotificationService.sendCrawlerStatisticMailAsync(startTime, allArticlesCrawled, allCommentsCrawled, allSubCommentsCrawled);
                             System.out.println("Number of facebook shares: " + article.getFacebookShares());
                         }
 
                         naTematCrawlerDB.getCommentService().saveComments(commentsList);
-                        mailNotificationService.sendCrawlerStatisticMailAsync(startTime, allArticlesCrawled, allCommentsCrawled, allSubCommentsCrawled);
 
                         if (article != null && !commentsList.isEmpty())
                             naTematCrawlerDB.getArticleService().saveCommentsForArticle(article, commentsList);
@@ -122,7 +123,7 @@ public class NaTematCrawler implements ICrawler {
                         for (Comment comment : commentsList) {
                             Set<Comment> subCommentsList = crawlerService.getSubCommentsForCommentId(comment.getId());
                             allSubCommentsCrawled += subCommentsList.size();
-                            mailNotificationService.sendCrawlerStatisticMailAsync(startTime, allArticlesCrawled, allCommentsCrawled, allSubCommentsCrawled);
+                            naTematCrawlerStatisticThread.setAllSubCommentsCrawled(allSubCommentsCrawled);
                             System.out.println("For commentId: " + comment.getId());
                             System.out.println("Number of subComments: " + subCommentsList.size());
                             naTematCrawlerDB.getCommentService().saveSubCommentsForComment(comment, subCommentsList);
@@ -130,6 +131,8 @@ public class NaTematCrawler implements ICrawler {
                     }
                 }
             }
+
+            naTematCrawlerStatisticThread.terminate();
 
             long endTime = System.currentTimeMillis() - startTime;
 
