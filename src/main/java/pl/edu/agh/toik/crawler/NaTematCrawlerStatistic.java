@@ -61,7 +61,9 @@ public class NaTematCrawlerStatistic implements Runnable {
             time = System.currentTimeMillis() - startTime;
 
             try {
-                if (time % frequency >= 0 && time % frequency <= 2000) {
+                if (time % frequency >= 0 && time % frequency <= 2000 &&
+                        (allArticlesCrawled > 0 || allCommentsCrawled > 0 || allSubCommentsCrawled > 0)) {
+
                     naTematCrawlerMailNotification.getMailNotificationService().sendMailNotification(
                             "NaTematCrawler statistic",
                             "Time: " + new Date() + " (" + time + "[ms])" + "\n" +
@@ -69,6 +71,7 @@ public class NaTematCrawlerStatistic implements Runnable {
                                     "All comments crawled: " + allCommentsCrawled + "\n" +
                                     "All subcomments crawled: " + allSubCommentsCrawled + "\n"
                     );
+
                 }
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
