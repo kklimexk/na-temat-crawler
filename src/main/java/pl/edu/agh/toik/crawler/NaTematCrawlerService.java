@@ -19,7 +19,7 @@ import java.util.*;
 @Service
 public class NaTematCrawlerService implements ICrawlerService {
 
-    private final static int TIMEOUT = 10 * 1000;
+    private final static int TIMEOUT = 60 * 1000;
 
     @Autowired
     private Environment env;
