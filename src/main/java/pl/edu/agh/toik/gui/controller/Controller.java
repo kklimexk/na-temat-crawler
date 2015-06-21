@@ -17,10 +17,7 @@ import java.net.URL;
 import java.util.*;
 
 import main.java.pl.edu.agh.toik.app.NaTematCrawlerConfig;
-import main.java.pl.edu.agh.toik.crawler.ICrawlerService;
-import main.java.pl.edu.agh.toik.crawler.NaTematCrawler;
-import main.java.pl.edu.agh.toik.crawler.NaTematCrawlerService;
-import main.java.pl.edu.agh.toik.crawler.LinkMap;
+import main.java.pl.edu.agh.toik.crawler.*;
 import main.java.pl.edu.agh.toik.database.NaTematCrawlerDB;
 import main.java.pl.edu.agh.toik.database.model.Article;
 import main.java.pl.edu.agh.toik.database.model.Comment;
@@ -38,6 +35,7 @@ public class Controller implements Initializable {
     private NaTematCrawlerDB naTematCrawlerDB;
     //komponent notyfikujacy
     private NaTematCrawlerMailNotification naTematCrawlerMailNotification;
+    private NaTematCrawlerStatistic naTematCrawlerStatisticThread;
     private MailNotificationService notificationService;
     private SectionService sectionService;
     private List<Integer> downloadTime;
@@ -83,6 +81,7 @@ public class Controller implements Initializable {
         crawler = naTematCrawler.getCrawlerService();
         naTematCrawlerDB = naTematCrawler.getNaTematCrawlerDB();
         naTematCrawlerMailNotification = naTematCrawler.getNaTematCrawlerMailNotification();
+        naTematCrawlerStatisticThread = naTematCrawler.getNaTematCrawlerStatisticThread();
         this.notificationService = naTematCrawlerMailNotification.getMailNotificationService();
         sectionService = naTematCrawlerDB.getSectionService();
 
@@ -286,6 +285,9 @@ public class Controller implements Initializable {
         this.notificationService.sendMailNotification("NaTematCrawler started", "Crawler started at: " + new Date());
         try {
             long startTime = System.currentTimeMillis();
+            Thread statisticThread = new Thread(naTematCrawlerStatisticThread);
+            statisticThread.start();
+
             Integer allArticlesCrawled = 0;
             Integer allCommentsCrawled = 0;
             Integer allSubCommentsCrawled = 0;
@@ -302,24 +304,29 @@ public class Controller implements Initializable {
                         String articleLink = this.crawler.getLinkFromName(n, this.articlesL);
                         Article art = this.crawler.getArticleFromUrl(articleLink);
                         allArticlesCrawled++;
+                        naTematCrawlerStatisticThread.setAllArticlesCrawled(allArticlesCrawled);
                         art.setSection(sect);
                         this.naTematCrawlerDB.getArticleService().saveArticle(art);
 
                         List<Comment> commentsList = crawler.getCommentsForUrl(articleLink);
                         allCommentsCrawled += commentsList.size();
+                        naTematCrawlerStatisticThread.setAllCommentsCrawled(allCommentsCrawled);
 
                         naTematCrawlerDB.getCommentService().saveComments(commentsList);
                         for (Comment comment : commentsList) {
                             Set<Comment> subCommentsList = crawler.getSubCommentsForCommentId(comment.getId());
                             allSubCommentsCrawled += subCommentsList.size();
-                            this.notificationService.sendCrawlerStatisticMailAsync(startTime, allArticlesCrawled, allCommentsCrawled, allSubCommentsCrawled);
+                            naTematCrawlerStatisticThread.setAllSubCommentsCrawled(allSubCommentsCrawled);
+                            //this.notificationService.sendCrawlerStatisticMailAsync(startTime, allArticlesCrawled, allCommentsCrawled, allSubCommentsCrawled);
                             naTematCrawlerDB.getCommentService().saveSubCommentsForComment(comment, subCommentsList);
                         }
                     }
                 }
             }
 
-            this.notificationService.sendCrawlerStatisticMailAsync(startTime, allArticlesCrawled, allCommentsCrawled, allSubCommentsCrawled);
+            //this.notificationService.sendCrawlerStatisticMailAsync(startTime, allArticlesCrawled, allCommentsCrawled, allSubCommentsCrawled);
+            naTematCrawlerStatisticThread.terminate();
+
             long endTime = System.currentTimeMillis() - startTime;
 
             this.notificationService.sendMailNotification("NaTematCrawler finished", "Crawler stopped at: " + new Date() +

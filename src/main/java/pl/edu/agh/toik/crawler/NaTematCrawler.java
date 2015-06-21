@@ -52,6 +52,10 @@ public class NaTematCrawler implements ICrawler {
         return naTematCrawlerMailNotification;
     }
 
+    public NaTematCrawlerStatistic getNaTematCrawlerStatisticThread() {
+        return naTematCrawlerStatisticThread;
+    }
+
     @Override
     public void crawl(String url) {
 
