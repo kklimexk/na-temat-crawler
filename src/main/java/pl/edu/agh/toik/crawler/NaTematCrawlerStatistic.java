@@ -1,6 +1,8 @@
 package main.java.pl.edu.agh.toik.crawler;
 
 import main.java.pl.edu.agh.toik.mail_notification.NaTematCrawlerMailNotification;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -9,6 +11,8 @@ import java.util.Date;
 
 @Service
 public class NaTematCrawlerStatistic implements Runnable {
+
+    final Logger logger = LoggerFactory.getLogger(NaTematCrawlerStatistic.class);
 
     @Autowired
     private Environment env;
@@ -64,14 +68,16 @@ public class NaTematCrawlerStatistic implements Runnable {
                 if (time % frequency >= 0 && time % frequency <= 2000 &&
                         (allArticlesCrawled > 0 || allCommentsCrawled > 0 || allSubCommentsCrawled > 0)) {
 
+                    String body = "Time: " + new Date() + " (" + time + "[ms])" + "\n" +
+                            "All articles crawled: " + allArticlesCrawled + "\n" +
+                            "All comments crawled: " + allCommentsCrawled + "\n" +
+                            "All subcomments crawled: " + allSubCommentsCrawled + "\n";
+
                     naTematCrawlerMailNotification.getMailNotificationService().sendMailNotification(
-                            "NaTematCrawler statistic",
-                            "Time: " + new Date() + " (" + time + "[ms])" + "\n" +
-                                    "All articles crawled: " + allArticlesCrawled + "\n" +
-                                    "All comments crawled: " + allCommentsCrawled + "\n" +
-                                    "All subcomments crawled: " + allSubCommentsCrawled + "\n"
+                            "NaTematCrawler statistic", body
                     );
 
+                    logger.info(body);
                 }
                 Thread.sleep(1000);
             } catch (InterruptedException e) {

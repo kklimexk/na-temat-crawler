@@ -8,6 +8,8 @@ import main.java.pl.edu.agh.toik.mail_notification.NaTematCrawlerMailNotificatio
 import main.java.pl.edu.agh.toik.mail_notification.service.MailNotificationService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +19,7 @@ import java.util.*;
 public class NaTematCrawler implements ICrawler {
 
     private final static int TIMEOUT = 10 * 1000;
+    final Logger logger = LoggerFactory.getLogger(NaTematCrawler.class);
 
     private ICrawlerService crawlerService;
     private ICrawlerSettings crawlerSettings;
@@ -61,7 +64,9 @@ public class NaTematCrawler implements ICrawler {
 
         MailNotificationService mailNotificationService = naTematCrawlerMailNotification.getMailNotificationService();
 
-        mailNotificationService.sendMailNotification("NaTematCrawler started", "Crawler started at: " + new Date());
+        String crawlerStartedMessage = "Crawler started at: " + new Date();
+        mailNotificationService.sendMailNotification("NaTematCrawler started", crawlerStartedMessage);
+        logger.info(crawlerStartedMessage);
 
         try {
 
@@ -140,15 +145,23 @@ public class NaTematCrawler implements ICrawler {
 
             long endTime = System.currentTimeMillis() - startTime;
 
-            mailNotificationService.sendMailNotification("NaTematCrawler finished", "Crawler stopped at: " + new Date() +
+            String crawlerEndMessage = "Crawler stopped at: " + new Date() +
                     "Crawling summary: " +
                     "End time: " + new Date() + " (" + endTime + "[ms])" + "\n" +
                     "All articles crawled: " + allArticlesCrawled + "\n" +
                     "All comments crawled: " + allCommentsCrawled + "\n" +
-                    "All subcomments crawled: " + allSubCommentsCrawled + "\n");
+                    "All subcomments crawled: " + allSubCommentsCrawled + "\n";
+
+            mailNotificationService.sendMailNotification("NaTematCrawler finished", crawlerEndMessage);
+
+            logger.info(crawlerEndMessage);
 
         } catch (Exception e) {
-            mailNotificationService.sendMailNotification("NaTematCrawler error", "Crawler error: " + e.getMessage());
+
+            String errorMessage = "Crawler error: " + e.getMessage();
+            mailNotificationService.sendMailNotification("NaTematCrawler error", errorMessage);
+            logger.error(errorMessage);
+
             e.printStackTrace();
         }
     }
