@@ -13,7 +13,7 @@
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.java.pl.edu.agh.toik.gui.controller.Controller">
    <children>
       <RadioButton fx:id="downloadButton" layoutX="15.0" layoutY="25.0" mnemonicParsing="false" onAction="#downloadAction" text="Pobierz artykuły" AnchorPane.leftAnchor="15.0" AnchorPane.topAnchor="25.0" />
-      <RadioButton fx:id="readButton" layoutX="15.0" layoutY="55.0" mnemonicParsing="false" onAction="#readAction" text="Wczytaj artykuły" AnchorPane.leftAnchor="15.0" AnchorPane.topAnchor="55.0" />
+      <RadioButton fx:id="readButton" layoutX="15.0" layoutY="55.0" mnemonicParsing="false" text="Wczytaj artykuły" AnchorPane.leftAnchor="15.0" AnchorPane.topAnchor="55.0" />
       <Label layoutX="15.0" layoutY="177.0" prefHeight="15.0" prefWidth="150.0" text="Wybierz dział" AnchorPane.leftAnchor="15.0" />
       <ComboBox fx:id="sectionCombo" layoutX="15.0" layoutY="192.0" onAction="#getFromSection" prefWidth="150.0" AnchorPane.leftAnchor="15.0" />
       <Label layoutX="15.0" layoutY="235.0" prefHeight="15.0" prefWidth="150.0" text="Wybierz Miesiąc" AnchorPane.leftAnchor="15.0" />

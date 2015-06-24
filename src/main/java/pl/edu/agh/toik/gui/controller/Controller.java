@@ -6,7 +6,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
@@ -16,6 +19,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
+import javafx.stage.Stage;
 import main.java.pl.edu.agh.toik.app.NaTematCrawlerConfig;
 import main.java.pl.edu.agh.toik.crawler.*;
 import main.java.pl.edu.agh.toik.database.NaTematCrawlerDB;
@@ -267,16 +271,16 @@ public class Controller implements Initializable {
                 this.histogram.getData().add(series);
             }
         }else if (chk.getText().equals("Wczytaj artykuły")) {
-            this.histogram.getData().clear();
-            List<Integer> linksInSection = new ArrayList<Integer>();
-            for(String sect : this.sections) {
-                linksInSection.add(this.naTematCrawlerDB.getArticleService().findArticlesBySectionName(sect).size());
+            try {
+                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getClassLoader().getResource("chart.fxml"));
+                Parent root1 = (Parent) fxmlLoader.load();
+                Stage stage = new Stage();
+                stage.setTitle("NaTemat crawler - statistic chart");
+                stage.setScene(new Scene(root1));
+                stage.show();
+            } catch(Exception e) {
+                e.printStackTrace();
             }
-            XYChart.Series<String, Integer> series = new XYChart.Series<>();
-            for (int i = 0; i < linksInSection.size(); i++){
-                series.getData().add(new XYChart.Data<>(this.sections.get(i), linksInSection.get(i)));
-            }
-            this.histogram.getData().add(series);
         }
     }
 
