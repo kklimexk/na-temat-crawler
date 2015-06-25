@@ -26,7 +26,7 @@ public class Comment {
     @JoinColumn(name = "articleId")
     private Article article;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "commentId")
     private Comment comment;
 
