@@ -60,7 +60,7 @@ public class NaTematCrawlerService implements ICrawlerService {
                 comments.add(comment);
             }
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -88,7 +88,7 @@ public class NaTematCrawlerService implements ICrawlerService {
                 subComments.add(subComment);
             }
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -102,7 +102,7 @@ public class NaTematCrawlerService implements ICrawlerService {
             JSONObject json1 = JsonReader.readJsonFromUrl("https://graph.facebook.com/comments?id=" + url);
             JSONArray data = json1.getJSONArray("data");
             return data.length();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -116,7 +116,7 @@ public class NaTematCrawlerService implements ICrawlerService {
         try {
             JSONObject json = JsonReader.readJsonFromUrl("https://graph.facebook.com/" + articleUrl + "?access_token=" + env.getRequiredProperty("facebook.token"));
             shareJson = json.getJSONObject("share");
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
