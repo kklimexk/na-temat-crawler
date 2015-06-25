@@ -40,63 +40,89 @@ public class NaTematCrawlerService implements ICrawlerService {
     }
 
     @Override
-    public List<Comment> getCommentsForUrl(String url) throws IOException {
+    public List<Comment> getCommentsForUrl(String url) {
 
         List<Comment> comments = new ArrayList<Comment>();
 
-        JSONObject json1 = JsonReader.readJsonFromUrl("https://graph.facebook.com/comments?id=" + url);
-        JSONArray data = json1.getJSONArray("data");
+        try {
 
-        for (int i = 0; i < data.length(); ++i) {
-            String commentId = data.getJSONObject(i).getString("id");
-            String commentAuthor = data.getJSONObject(i).getJSONObject("from").getString("name");
-            DateTime commentCreatedDate = DateTime.parse(data.getJSONObject(i).getString("created_time"));
-            Integer commentLikeCounter = data.getJSONObject(i).getInt("like_count");
-            String commentContent = data.getJSONObject(i).getString("message");
+            JSONObject json1 = JsonReader.readJsonFromUrl("https://graph.facebook.com/comments?id=" + url);
+            JSONArray data = json1.getJSONArray("data");
 
-            Comment comment = new Comment(commentId, commentAuthor, commentCreatedDate, commentLikeCounter, commentContent);
-            comments.add(comment);
+            for (int i = 0; i < data.length(); ++i) {
+                String commentId = data.getJSONObject(i).getString("id");
+                String commentAuthor = data.getJSONObject(i).getJSONObject("from").getString("name");
+                DateTime commentCreatedDate = DateTime.parse(data.getJSONObject(i).getString("created_time"));
+                Integer commentLikeCounter = data.getJSONObject(i).getInt("like_count");
+                String commentContent = data.getJSONObject(i).getString("message");
+
+                Comment comment = new Comment(commentId, commentAuthor, commentCreatedDate, commentLikeCounter, commentContent);
+                comments.add(comment);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         return comments;
     }
 
     @Override
-    public Set<Comment> getSubCommentsForCommentId(String commentId) throws IOException {
+    public Set<Comment> getSubCommentsForCommentId(String commentId) {
 
         Set<Comment> subComments = new LinkedHashSet<Comment>();
 
-        JSONObject json = JsonReader.readJsonFromUrl("https://graph.facebook.com/" + commentId + "/comments" + "?access_token=" + env.getRequiredProperty("facebook.token"));
-        JSONArray data = json.getJSONArray("data");
+        try {
 
-        for (int i = 0; i < data.length(); ++i) {
-            String subCommentId = data.getJSONObject(i).getString("id");
-            String subCommentAuthor = data.getJSONObject(i).getJSONObject("from").getString("name");
-            DateTime subCommentCreatedDate = DateTime.parse(data.getJSONObject(i).getString("created_time"));
-            Integer subCommentLikeCounter = data.getJSONObject(i).getInt("like_count");
-            String subCommentContent = data.getJSONObject(i).getString("message");
+            JSONObject json = JsonReader.readJsonFromUrl("https://graph.facebook.com/" + commentId + "/comments" + "?access_token=" + env.getRequiredProperty("facebook.token"));
+            JSONArray data = json.getJSONArray("data");
 
-            Comment subComment = new Comment(subCommentId, subCommentAuthor, subCommentCreatedDate, subCommentLikeCounter, subCommentContent);
-            subComments.add(subComment);
+            for (int i = 0; i < data.length(); ++i) {
+                String subCommentId = data.getJSONObject(i).getString("id");
+                String subCommentAuthor = data.getJSONObject(i).getJSONObject("from").getString("name");
+                DateTime subCommentCreatedDate = DateTime.parse(data.getJSONObject(i).getString("created_time"));
+                Integer subCommentLikeCounter = data.getJSONObject(i).getInt("like_count");
+                String subCommentContent = data.getJSONObject(i).getString("message");
+
+                Comment subComment = new Comment(subCommentId, subCommentAuthor, subCommentCreatedDate, subCommentLikeCounter, subCommentContent);
+                subComments.add(subComment);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
         return subComments;
     }
 
     @Override
-    public int getNumberOfCommentsForUrl(String url) throws IOException {
-        JSONObject json1 = JsonReader.readJsonFromUrl("https://graph.facebook.com/comments?id=" + url);
-        JSONArray data = json1.getJSONArray("data");
-        return data.length();
+    public int getNumberOfCommentsForUrl(String url) {
+
+        try {
+            JSONObject json1 = JsonReader.readJsonFromUrl("https://graph.facebook.com/comments?id=" + url);
+            JSONArray data = json1.getJSONArray("data");
+            return data.length();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return 0;
     }
 
     @Override
-    public int getNumberOfFacebookSharesForArticle(String articleUrl) throws IOException {
-        JSONObject json = JsonReader.readJsonFromUrl("https://graph.facebook.com/" + articleUrl + "?access_token=" + env.getRequiredProperty("facebook.token"));
-        JSONObject shareJson = json.getJSONObject("share");
+    public int getNumberOfFacebookSharesForArticle(String articleUrl) {
+        JSONObject shareJson = null;
 
-        if (shareJson.has("share_count"))
+        try {
+            JSONObject json = JsonReader.readJsonFromUrl("https://graph.facebook.com/" + articleUrl + "?access_token=" + env.getRequiredProperty("facebook.token"));
+            shareJson = json.getJSONObject("share");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (shareJson != null && shareJson.has("share_count"))
             return shareJson.getInt("share_count");
+
         return 0;
     }
 

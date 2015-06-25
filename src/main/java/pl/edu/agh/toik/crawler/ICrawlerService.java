@@ -10,9 +10,9 @@ import java.util.Set;
 
 public interface ICrawlerService {
     Set<Element> findUniqueLinks(Collection<Element> links);
-    List<Comment> getCommentsForUrl(String url) throws IOException;
-    Set<Comment> getSubCommentsForCommentId(String commentId) throws IOException;
-    int getNumberOfCommentsForUrl(String url) throws IOException;
+    List<Comment> getCommentsForUrl(String url);
+    Set<Comment> getSubCommentsForCommentId(String commentId);
+    int getNumberOfCommentsForUrl(String url);
     Article getArticleFromUrl(String url) throws IOException;
     Set<String> getAllBlogsLinks() throws IOException;
     Set<String> getAllArticlesLinks() throws IOException;
