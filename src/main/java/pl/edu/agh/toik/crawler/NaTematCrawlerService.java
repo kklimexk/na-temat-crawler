@@ -136,13 +136,15 @@ public class NaTematCrawlerService implements ICrawlerService {
             return null;
         Document doc = Jsoup.connect(url).timeout(TIMEOUT).get();
         String author = doc.select("div.author-label").first().text();
+        String title = doc.select("div.article-title").first().text();
         String dateStr = doc.select("span.date").first().attr("title");
         String date = dateStr.split("T")[0];
         String time = dateStr.split("T")[1];
         DateTime artDate = new DateTime(Integer.parseInt(date.split("-")[0]), Integer.parseInt(date.split("-")[1]), Integer.parseInt(date.split("-")[2]), Integer.parseInt(time.split(":")[0]), Integer.parseInt(time.split(":")[1]));
+        String articleContent = doc.select("div.article-body").first().text();
         Integer numberOfFacebookShares = getNumberOfFacebookSharesForArticle(url);
 //        Integer numberOfFacebookShares = 50;
-        return new Article(url, author, doc.title(), artDate, doc.text(), numberOfFacebookShares);
+        return new Article(url, author, title, artDate, articleContent, numberOfFacebookShares);
     }
 
     @Override
