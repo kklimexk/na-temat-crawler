@@ -159,9 +159,10 @@ public class NaTematCrawlerService implements ICrawlerService {
         }
         if (!spanDatesElements.isEmpty()) {
             String dateStr = spanDatesElements.first().attr("title");
-            String date = dateStr.split("T")[0];
+            artDate = DateTime.parse(dateStr);
+            /*String date = dateStr.split("T")[0];
             String time = dateStr.split("T")[1];
-            artDate = new DateTime(Integer.parseInt(date.split("-")[0]), Integer.parseInt(date.split("-")[1]), Integer.parseInt(date.split("-")[2]), Integer.parseInt(time.split(":")[0]), Integer.parseInt(time.split(":")[1]));
+            artDate = new DateTime(Integer.parseInt(date.split("-")[0]), Integer.parseInt(date.split("-")[1]), Integer.parseInt(date.split("-")[2]), Integer.parseInt(time.split(":")[0]), Integer.parseInt(time.split(":")[1]));*/
         }
 
         Elements articleBodyElements = doc.select("div.article-body");
