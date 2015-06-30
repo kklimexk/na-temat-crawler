@@ -322,7 +322,7 @@ public class Controller implements Initializable {
                             allSubCommentsCrawled += subCommentsList.size();
                             naTematCrawlerStatisticThread.setAllSubCommentsCrawled(allSubCommentsCrawled);
                             //this.notificationService.sendCrawlerStatisticMailAsync(startTime, allArticlesCrawled, allCommentsCrawled, allSubCommentsCrawled);
-                            naTematCrawlerDB.getCommentService().saveSubCommentsForComment(comment, subCommentsList);
+                            naTematCrawlerDB.getCommentService().saveSubCommentsForComment(art, comment, subCommentsList);
                         }
                     }
                 }

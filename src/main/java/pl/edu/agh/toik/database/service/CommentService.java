@@ -33,8 +33,9 @@ public class CommentService {
     }
 
     @Transactional
-    public void saveSubCommentsForComment(Comment comment, Set<Comment> subComments) {
+    public void saveSubCommentsForComment(Article article, Comment comment, Set<Comment> subComments) {
         for (Comment subComment : subComments) {
+            subComment.setArticle(article);
             subComment.setComment(comment);
             commentRepository.save(subComment);
         }
