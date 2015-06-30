@@ -136,8 +136,12 @@ public class NaTematCrawlerService implements ICrawlerService {
             return null;
         Document doc = Jsoup.connect(url).timeout(TIMEOUT).get();
 
-        //removed unnecessary html element (figure-container)
-        doc.select("div.figure-container").remove();
+        //removed unnecessary html element (figure-container, gallery)
+        Elements figureContainers = doc.select("div.figure-container");
+        Elements galleries = doc.select("div.gallery");
+
+        if (!figureContainers.isEmpty()) figureContainers.remove();
+        if (!galleries.isEmpty()) galleries.remove();
 
         Elements authorsElements = doc.select("div.author-label");
         Elements titlesElements = doc.select("div.article-title");
@@ -161,6 +165,7 @@ public class NaTematCrawlerService implements ICrawlerService {
         }
 
         Elements articleBodyElements = doc.select("div.article-body");
+        //articleBodyElements.select("blockquote").last().remove();
 
         if (articleBodyElements.isEmpty()) return null;
 
