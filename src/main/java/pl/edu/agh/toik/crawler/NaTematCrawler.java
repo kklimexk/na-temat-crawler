@@ -135,7 +135,7 @@ public class NaTematCrawler implements ICrawler {
                             naTematCrawlerStatisticThread.setAllSubCommentsCrawled(allSubCommentsCrawled);
                             System.out.println("For commentId: " + comment.getId());
                             System.out.println("Number of subComments: " + subCommentsList.size());
-                            naTematCrawlerDB.getCommentService().saveSubCommentsForComment(comment, subCommentsList);
+                            naTematCrawlerDB.getCommentService().saveSubCommentsForComment(article, comment, subCommentsList);
                         }
                     }
                 }
