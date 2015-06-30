@@ -19,6 +19,8 @@ public class Article {
     private DateTime createdDate;
     @Column(columnDefinition = "TEXT")
     private String text;
+    @Column(columnDefinition = "TEXT")
+    private String htmlText;
     private Integer facebookShares;
 
     @OneToMany(mappedBy = "article")
@@ -30,12 +32,13 @@ public class Article {
     public Article() {
     }
 
-    public Article(String urlId, String author, String title, DateTime createdDate, String text, Integer facebookShares) {
+    public Article(String urlId, String author, String title, DateTime createdDate, String text, String htmlText, Integer facebookShares) {
         this.urlId = urlId;
         this.author = author;
         this.title = title;
         this.createdDate = createdDate;
         this.text = text;
+        this.htmlText = htmlText;
         this.facebookShares = facebookShares;
     }
 
@@ -77,6 +80,14 @@ public class Article {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public String getHtmlText() {
+        return htmlText;
+    }
+
+    public void setHtmlText(String htmlText) {
+        this.htmlText = htmlText;
     }
 
     public Integer getFacebookShares() {

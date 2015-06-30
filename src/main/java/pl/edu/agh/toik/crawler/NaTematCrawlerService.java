@@ -142,9 +142,10 @@ public class NaTematCrawlerService implements ICrawlerService {
         String time = dateStr.split("T")[1];
         DateTime artDate = new DateTime(Integer.parseInt(date.split("-")[0]), Integer.parseInt(date.split("-")[1]), Integer.parseInt(date.split("-")[2]), Integer.parseInt(time.split(":")[0]), Integer.parseInt(time.split(":")[1]));
         String articleContent = doc.select("div.article-body").first().text();
+        String articleHtmlContent = doc.select("div.article-body").first().html();
         Integer numberOfFacebookShares = getNumberOfFacebookSharesForArticle(url);
 //        Integer numberOfFacebookShares = 50;
-        return new Article(url, author, title, artDate, articleContent, numberOfFacebookShares);
+        return new Article(url, author, title, artDate, articleContent, articleHtmlContent, numberOfFacebookShares);
     }
 
     @Override
