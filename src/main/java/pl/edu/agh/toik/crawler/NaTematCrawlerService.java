@@ -135,6 +135,10 @@ public class NaTematCrawlerService implements ICrawlerService {
                 url.matches("http://natemat.pl/posts-map/.*"))
             return null;
         Document doc = Jsoup.connect(url).timeout(TIMEOUT).get();
+
+        //removed unnecessary html element (figure-container)
+        doc.select("div.figure-container").remove();
+
         String author = doc.select("div.author-label").first().text();
         String title = doc.select("div.article-title").first().text();
         String dateStr = doc.select("span.date").first().attr("title");
@@ -144,7 +148,7 @@ public class NaTematCrawlerService implements ICrawlerService {
         String articleContent = doc.select("div.article-body").first().text();
         String articleHtmlContent = doc.select("div.article-body").first().html();
         Integer numberOfFacebookShares = getNumberOfFacebookSharesForArticle(url);
-//        Integer numberOfFacebookShares = 50;
+
         return new Article(url, author, title, artDate, articleContent, articleHtmlContent, numberOfFacebookShares);
     }
 
