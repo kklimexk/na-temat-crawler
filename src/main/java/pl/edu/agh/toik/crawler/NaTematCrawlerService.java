@@ -139,14 +139,34 @@ public class NaTematCrawlerService implements ICrawlerService {
         //removed unnecessary html element (figure-container)
         doc.select("div.figure-container").remove();
 
-        String author = doc.select("div.author-label").first().text();
-        String title = doc.select("div.article-title").first().text();
-        String dateStr = doc.select("span.date").first().attr("title");
-        String date = dateStr.split("T")[0];
-        String time = dateStr.split("T")[1];
-        DateTime artDate = new DateTime(Integer.parseInt(date.split("-")[0]), Integer.parseInt(date.split("-")[1]), Integer.parseInt(date.split("-")[2]), Integer.parseInt(time.split(":")[0]), Integer.parseInt(time.split(":")[1]));
-        String articleContent = doc.select("div.article-body").first().text();
-        String articleHtmlContent = doc.select("div.article-body").first().html();
+        Elements authorsElements = doc.select("div.author-label");
+        Elements titlesElements = doc.select("div.article-title");
+        Elements spanDatesElements = doc.select("span.date");
+
+        String author = "Unknown";
+        String title = "Unknown";
+        DateTime artDate = null;
+
+        if (!authorsElements.isEmpty()) {
+            author = authorsElements.first().text();
+        }
+        if (!titlesElements.isEmpty()) {
+            title = titlesElements.first().text();
+        }
+        if (!spanDatesElements.isEmpty()) {
+            String dateStr = spanDatesElements.first().attr("title");
+            String date = dateStr.split("T")[0];
+            String time = dateStr.split("T")[1];
+            artDate = new DateTime(Integer.parseInt(date.split("-")[0]), Integer.parseInt(date.split("-")[1]), Integer.parseInt(date.split("-")[2]), Integer.parseInt(time.split(":")[0]), Integer.parseInt(time.split(":")[1]));
+        }
+
+        Elements articleBodyElements = doc.select("div.article-body");
+
+        if (articleBodyElements.isEmpty()) return null;
+
+        String articleContent = articleBodyElements.first().text();
+        String articleHtmlContent = articleBodyElements.first().html();
+
         Integer numberOfFacebookShares = getNumberOfFacebookSharesForArticle(url);
 
         return new Article(url, author, title, artDate, articleContent, articleHtmlContent, numberOfFacebookShares);
