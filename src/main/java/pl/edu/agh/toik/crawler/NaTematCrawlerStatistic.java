@@ -25,6 +25,8 @@ public class NaTematCrawlerStatistic implements Runnable {
     private Integer allArticlesCrawled = 0;
     private Integer allCommentsCrawled = 0;
     private Integer allSubCommentsCrawled = 0;
+    private String section = "";
+    private String articlesDateInSection = "";
 
     public Integer getAllArticlesCrawled() {
         return allArticlesCrawled;
@@ -50,6 +52,22 @@ public class NaTematCrawlerStatistic implements Runnable {
         this.allSubCommentsCrawled = allSubCommentsCrawled;
     }
 
+    public String getSection() {
+        return section;
+    }
+
+    public void setSection(String section) {
+        this.section = section;
+    }
+
+    public String getArticlesDateInSection() {
+        return articlesDateInSection;
+    }
+
+    public void setArticlesDateInSection(String articlesDateInSection) {
+        this.articlesDateInSection = articlesDateInSection;
+    }
+
     @Override
     public void run() {
 
@@ -71,7 +89,9 @@ public class NaTematCrawlerStatistic implements Runnable {
                     String body = "Time: " + new Date() + " (" + time + "[ms])" + "\n" +
                             "All articles crawled: " + allArticlesCrawled + "\n" +
                             "All comments crawled: " + allCommentsCrawled + "\n" +
-                            "All subcomments crawled: " + allSubCommentsCrawled + "\n";
+                            "All subcomments crawled: " + allSubCommentsCrawled + "\n" +
+                            "Section: " + section + "\n" +
+                            "Articles date in section: " + articlesDateInSection + "\n";
 
                     naTematCrawlerMailNotification.getMailNotificationService().sendMailNotification(
                             "NaTematCrawler statistic", body
@@ -80,7 +100,7 @@ public class NaTematCrawlerStatistic implements Runnable {
                     logger.info(body);
                 }
                 Thread.sleep(1000);
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
