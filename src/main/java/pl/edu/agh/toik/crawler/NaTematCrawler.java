@@ -18,7 +18,7 @@ import java.util.*;
 @Component
 public class NaTematCrawler implements ICrawler {
 
-    private final static int TIMEOUT = 10 * 1000;
+    private final static int TIMEOUT = 0;
     final Logger logger = LoggerFactory.getLogger(NaTematCrawler.class);
 
     private ICrawlerService crawlerService;
